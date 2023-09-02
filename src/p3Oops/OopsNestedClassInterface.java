@@ -29,7 +29,7 @@ class TestInnerClass {
   }
 }
 
-interface Test {
+interface TestX {
   void test();
 }
 
@@ -42,7 +42,7 @@ class TestAnonymousInnerClass {
   }
 
   public void msgA() {
-    Test test = new Test() {
+    TestX test = new TestX() {
       @Override
       public void test() {
         System.out.println(data);
@@ -52,7 +52,7 @@ class TestAnonymousInnerClass {
   }
 
   public static void msgAT() {
-    Test test = new Test() {
+    TestX test = new TestX() {
       @Override
       public void test() {
         System.out.println(value);

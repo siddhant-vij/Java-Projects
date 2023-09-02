@@ -43,11 +43,11 @@ class DisplayWish {
   }
 }
 
-class MyThreadWish extends Thread {
+class MyThreadWishX extends Thread {
   private final DisplayWish display;
   private final String name;
 
-  MyThreadWish(String name, DisplayWish display) {
+  MyThreadWishX(String name, DisplayWish display) {
     this.name = name;
     this.display = display;
   }
@@ -121,11 +121,6 @@ class BigWish {
     ;
     ;
     ;
-    ;
-    ;
-    ;
-    ;
-    ;
     // One lakh line of code
 
     // Without synchronized - irregular output
@@ -148,11 +143,6 @@ class BigWish {
         System.out.println(name);
       }
     }
-    ;
-    ;
-    ;
-    ;
-    ;
     ;
     ;
     ;
