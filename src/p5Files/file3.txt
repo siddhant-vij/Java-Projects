@@ -1,0 +1,1 @@
+Read the path to file1 and the path to file2 from the console. Write all the bytes from file1 to file2, but in doing so swap them according to this rule: swap the first with the second, the third with the fourth, and so on. If the last byte in file1 is odd, then write it to file2 as is.

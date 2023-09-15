@@ -1,16 +1,20 @@
 package p5Files;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
-
-// import java.io.File;
-// import java.io.FileNotFoundException;
-// import java.io.FileWriter;
 import java.io.IOException;
-// import java.util.Scanner;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 public class FilesPractice {
@@ -80,14 +84,14 @@ public class FilesPractice {
 
         // Delete a folder with files in it
         /*
-        * File directory = new File("Tables");
-        * String[]entries = directory.list();
-        * for(String s: entries){
-        * File currentFile = new File(directory.getPath(),s);
-        * currentFile.delete();
-        * }
-        * directory.delete();
-        */
+         * File directory = new File("Tables");
+         * String[]entries = directory.list();
+         * for(String s: entries){
+         * File currentFile = new File(directory.getPath(),s);
+         * currentFile.delete();
+         * }
+         * directory.delete();
+         */
 
         // Merge content of two files (file1.txt & file2.txt) into a third file
         BufferedReader bufferedReader = new BufferedReader(new FileReader("./src/p5Files/file1.txt"));
@@ -109,8 +113,8 @@ public class FilesPractice {
         printWriter.flush();
         printWriter.close();
 
-        // Merge content of two files (file1.txt & file2.txt) into a third file, but do
-        // it line by line from both files
+        // Merge content of two files (file1.txt & file2.txt) into a third file, but
+        // do it line by line from both files
         printWriter = new PrintWriter("./src/p5Files/file4.txt");
         BufferedReader bufferedReader1 = new BufferedReader(new FileReader("./src/p5Files/file1.txt"));
         BufferedReader bufferedReader2 = new BufferedReader(new FileReader("./src/p5Files/file2.txt"));
@@ -131,8 +135,9 @@ public class FilesPractice {
         printWriter.flush();
         printWriter.close();
 
-        // Given an input file (inputFile.txt) and a delete file (deleteFile.txt) delete
-        // all the lines from the input file that are present in the delete file and
+        // Given an input file (inputFile.txt) and a delete file (deleteFile.txt)
+        // delete all the lines from the input file that are present in the delete file
+        // and
         // create a new file called output.txt from the input file.
         printWriter = new PrintWriter("./src/p5Files/outputFile.txt");
         BufferedReader inputFile = new BufferedReader(new FileReader("./src/p5Files/inputFile.txt"));
@@ -166,8 +171,9 @@ public class FilesPractice {
         printWriter.flush();
         printWriter.close();
 
-
-        // Given an input file (inputWithDups.txt) - remove the duplicates from the file and create a new file called outputWithoutDups.txt from the input file which contains only the unique values from the input file.
+        // Given an input file (inputWithDups.txt) - remove the duplicates from the
+        // file and create a new file called outputWithoutDups.txt from the input file
+        // which contains only the unique values from the input file.
         printWriter = new PrintWriter("./src/p5Files/outputWithoutDups.txt");
         BufferedReader inputFile3 = new BufferedReader(new FileReader("./src/p5Files/inputWithDups.txt"));
         Set<String> lines = new LinkedHashSet<>();
@@ -182,5 +188,81 @@ public class FilesPractice {
         }
         printWriter.flush();
         printWriter.close();
+
+        // Reads from the console the path to a file, reads lines from the file, and
+        // displays them on the screen.
+        try (Scanner sc = new Scanner(System.in);
+                BufferedReader reader = Files.newBufferedReader(Path.of(sc.nextLine()))) {
+            String lineX;
+            while ((lineX = reader.readLine()) != null) {
+                System.out.println(lineX);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Read the path to file1 and the path to file2 from the console.
+        // Write all the bytes from file1 to file2,
+        // but in doing so swap them according to this rule: swap the first with the
+        // second, the third with the fourth, and so on.
+        // If the last byte in file1 is odd, then write it to file2 as is.
+        Scanner sc = null;
+        InputStream fileInputStream = null;
+        OutputStream fileOutputStream = null;
+        try {
+            sc = new Scanner(System.in);
+            fileInputStream = Files.newInputStream(Paths.get(sc.nextLine()));
+            fileOutputStream = Files.newOutputStream(Paths.get(sc.nextLine()));
+            int fileSize = fileInputStream.available();
+            byte[] buffer = new byte[fileSize];
+            fileInputStream.read(buffer);
+            int bufferCounter = 0;
+            while (bufferCounter < fileSize - 1) {
+                byte byte1 = buffer[bufferCounter];
+                byte byte2 = buffer[bufferCounter + 1];
+                buffer[bufferCounter] = byte2;
+                buffer[bufferCounter + 1] = byte1;
+                fileOutputStream.write(buffer, bufferCounter, 2);
+                bufferCounter += 2;
+            }
+            fileOutputStream.write(buffer, bufferCounter, fileSize - bufferCounter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (sc != null)
+                sc.close();
+            if (fileInputStream != null)
+                fileInputStream.close();
+            if (fileOutputStream != null)
+                fileOutputStream.close();
+        }
+
+        // Read the name of a text file from the console
+        // Then read characters from this file (use the readAllLines(Path) method of
+        // the Files class) and displays everything except periods, commas, and spaces.
+        try {
+            sc = new Scanner(System.in);
+            String fileName = sc.nextLine();
+            List<String> linesX = Files.readAllLines(Paths.get(fileName));
+            for (String lineX : linesX) {
+                System.out.println(lineX.replaceAll("[,. ]", ""));
+            }
+        } finally {
+            if (sc != null)
+                sc.close();
+        }
+
+        // Use a PrintStream to reverse the output.
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream stream = new PrintStream(outputStream);
+        try (Scanner scanner = new Scanner(System.in)) {
+            stream.print(scanner.nextLine());
+            String result = outputStream.toString();
+            outputStream.reset();
+            StringBuilder stringBuilder = new StringBuilder(result);
+            String reverse = stringBuilder.reverse().toString();
+            stream.print(reverse);
+            System.out.println(outputStream);
+        }
     }
 }
