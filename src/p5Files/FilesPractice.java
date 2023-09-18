@@ -3,17 +3,12 @@ package p5Files;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -38,10 +33,10 @@ public class FilesPractice {
          * }
          */
 
-        // Code to write to a file - overwrites every time (without second parameter set
-        // to true - default).
-        // Second parameter to FileWriter. If set to true, then the data will be written
-        // to the end of the file.
+        // Code to write to a file - overwrites every time (without second parameter
+        // set to true - default).
+        // Second parameter to FileWriter. If set to true, then the data will be
+        // written to the end of the file.
         /*
          * try {
          * FileWriter fileWriterU = new FileWriter("ExampleFile.txt", true);
@@ -136,9 +131,8 @@ public class FilesPractice {
         printWriter.close();
 
         // Given an input file (inputFile.txt) and a delete file (deleteFile.txt)
-        // delete all the lines from the input file that are present in the delete file
-        // and
-        // create a new file called output.txt from the input file.
+        // delete all the lines from the input file that are present in the delete
+        // file and create a new file called output.txt from the input file.
         printWriter = new PrintWriter("./src/p5Files/outputFile.txt");
         BufferedReader inputFile = new BufferedReader(new FileReader("./src/p5Files/inputFile.txt"));
         Set<String> linesToDelete = new HashSet<>();
@@ -172,8 +166,8 @@ public class FilesPractice {
         printWriter.close();
 
         // Given an input file (inputWithDups.txt) - remove the duplicates from the
-        // file and create a new file called outputWithoutDups.txt from the input file
-        // which contains only the unique values from the input file.
+        // file and create a new file called outputWithoutDups.txt from the input
+        // file which contains only the unique values from the input file.
         printWriter = new PrintWriter("./src/p5Files/outputWithoutDups.txt");
         BufferedReader inputFile3 = new BufferedReader(new FileReader("./src/p5Files/inputWithDups.txt"));
         Set<String> lines = new LinkedHashSet<>();
@@ -189,69 +183,6 @@ public class FilesPractice {
         printWriter.flush();
         printWriter.close();
 
-        // Reads from the console the path to a file, reads lines from the file, and
-        // displays them on the screen.
-        try (Scanner sc = new Scanner(System.in);
-                BufferedReader reader = Files.newBufferedReader(Path.of(sc.nextLine()))) {
-            String lineX;
-            while ((lineX = reader.readLine()) != null) {
-                System.out.println(lineX);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Read the path to file1 and the path to file2 from the console.
-        // Write all the bytes from file1 to file2,
-        // but in doing so swap them according to this rule: swap the first with the
-        // second, the third with the fourth, and so on.
-        // If the last byte in file1 is odd, then write it to file2 as is.
-        Scanner sc = null;
-        InputStream fileInputStream = null;
-        OutputStream fileOutputStream = null;
-        try {
-            sc = new Scanner(System.in);
-            fileInputStream = Files.newInputStream(Paths.get(sc.nextLine()));
-            fileOutputStream = Files.newOutputStream(Paths.get(sc.nextLine()));
-            int fileSize = fileInputStream.available();
-            byte[] buffer = new byte[fileSize];
-            fileInputStream.read(buffer);
-            int bufferCounter = 0;
-            while (bufferCounter < fileSize - 1) {
-                byte byte1 = buffer[bufferCounter];
-                byte byte2 = buffer[bufferCounter + 1];
-                buffer[bufferCounter] = byte2;
-                buffer[bufferCounter + 1] = byte1;
-                fileOutputStream.write(buffer, bufferCounter, 2);
-                bufferCounter += 2;
-            }
-            fileOutputStream.write(buffer, bufferCounter, fileSize - bufferCounter);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (sc != null)
-                sc.close();
-            if (fileInputStream != null)
-                fileInputStream.close();
-            if (fileOutputStream != null)
-                fileOutputStream.close();
-        }
-
-        // Read the name of a text file from the console
-        // Then read characters from this file (use the readAllLines(Path) method of
-        // the Files class) and displays everything except periods, commas, and spaces.
-        try {
-            sc = new Scanner(System.in);
-            String fileName = sc.nextLine();
-            List<String> linesX = Files.readAllLines(Paths.get(fileName));
-            for (String lineX : linesX) {
-                System.out.println(lineX.replaceAll("[,. ]", ""));
-            }
-        } finally {
-            if (sc != null)
-                sc.close();
-        }
-
         // Use a PrintStream to reverse the output.
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream stream = new PrintStream(outputStream);
@@ -263,6 +194,29 @@ public class FilesPractice {
             String reverse = stringBuilder.reverse().toString();
             stream.print(reverse);
             System.out.println(outputStream);
+        }
+
+        // Read a file (Input.txt) and create 3 output files
+        // OpFile1.txt - contains every other character from the input file
+        // OpFile2.txt - contains all the characters from the input file
+        // OpFile3.txt - contains last quarter of characters from the input file
+        try (FileReader inputFile4 = new FileReader("./src/p5Files/Input.txt");
+                BufferedReader bufferedReader4 = new BufferedReader(inputFile4);
+                FileWriter fileWriter1 = new FileWriter("./src/p5Files/OpFile1.txt");
+                FileWriter fileWriter2 = new FileWriter("./src/p5Files/OpFile2.txt");
+                FileWriter fileWriter3 = new FileWriter("./src/p5Files/OpFile3.txt")) {
+            int fileLength = 0;
+            int nextRead;
+            StringBuilder sb = new StringBuilder();
+            while ((nextRead = bufferedReader4.read()) != -1) {
+                fileWriter2.write(nextRead);
+                if (fileLength % 2 == 0) {
+                    fileWriter1.write(nextRead);
+                }
+                fileLength++;
+                sb.append(Character.toString((char) nextRead));
+            }
+            fileWriter3.write(sb.toString(), 3 * fileLength / 4, fileLength - 3 * fileLength / 4);
         }
     }
 }
