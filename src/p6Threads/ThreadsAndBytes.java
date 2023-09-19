@@ -49,5 +49,6 @@ public class ThreadsAndBytes {
       ReadThread th = new ReadThread(line);
       th.start();
     }
+    System.out.println(resultMap);
   }
 }
