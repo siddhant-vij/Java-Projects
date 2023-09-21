@@ -1,0 +1,31 @@
+<head>
+  <title>Document</title>
+</head>
+
+<body>
+  <div>
+    <span>
+      <p>
+        <span>text 1</span>
+        <span>text 1</span>
+      </p>
+      <p>text 0</p>
+      <p>text 0</p>
+    </span>
+    <span>
+      <p>text</p>
+      <p>text</p>
+      <p>
+        <span>text 1</span>
+        <span>text 1</span>
+      </p>
+    </span>
+    <span>
+      <p>text</p>
+      <p>text</p>
+      <p>text</p>
+    </span>
+  </div>
+</body>
+
+</html>
