@@ -19,51 +19,39 @@ class OddEven extends Thread {
     this.n = n;
   }
 
-  public void odd() {
-    try {
-      odd.acquire();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+  public void odd() throws InterruptedException {
+    odd.acquire();
     Shared.counter++;
-    System.out.println(name + " counter = " + Shared.counter);
-    try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    System.out.println("Odd counter = " + Shared.counter);
+    Thread.sleep(10);
     even.release();
   }
 
-  public void even() {
-    try {
-      even.acquire();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+  public void even() throws InterruptedException {
+    even.acquire();
     Shared.counter++;
-    System.out.println(name + " counter = " + Shared.counter);
-    try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    System.out.println("Even counter = " + Shared.counter);
+    Thread.sleep(10);
     odd.release();
   }
 
   @Override
   public void run() {
-    for (int i = 0; 2 * i < n; i++) {
-      if (name.equals("Odd")) {
-        odd();
-      } else {
-        even();
+    try {
+      for (int i = 0; 2 * i < n; i++) {
+        if (name.equals("Odd")) {
+          odd();
+        } else {
+          even();
+        }
       }
+    } catch (InterruptedException e) {
+      System.out.println("Interrupted");
     }
   }
 }
 
-public class OddEvenSemaphore {
+public class OddEvenSemaphoreDemo {
   public static void main(String[] args) {
     Semaphore odd = new Semaphore(1);
     Semaphore even = new Semaphore(0); // 0 - assures that odd runs first
