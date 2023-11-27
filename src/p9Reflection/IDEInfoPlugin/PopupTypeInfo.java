@@ -1,4 +1,4 @@
-package p9Reflection.IDE_Info_Plugin;
+package p9Reflection.IDEInfoPlugin;
 
 /**
  * Represents a Type when the user hovers the mouse over

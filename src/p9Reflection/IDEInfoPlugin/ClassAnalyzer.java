@@ -1,4 +1,4 @@
-package p9Reflection.IDE_Info_Plugin;
+package p9Reflection.IDEInfoPlugin;
 
 import java.util.Arrays;
 import java.util.List;
