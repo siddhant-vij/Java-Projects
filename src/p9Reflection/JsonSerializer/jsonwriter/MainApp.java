@@ -2,6 +2,7 @@ package p9Reflection.JsonSerializer.jsonwriter;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import p9Reflection.JsonSerializer.data.Address;
 import p9Reflection.JsonSerializer.data.Job;
@@ -10,9 +11,9 @@ import p9Reflection.JsonSerializer.data.Relative;
 
 public class MainApp {
   public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException {
-    Address address = new Address("123 Main Street", (short) 123);
-    Address companyAddress = new Address("456 Main Street", (short) 456);
-    double[][] heightWeight = new double[][] {{1.8, 80}, {1.75, 75}, {1.5, 50}};
+    Address address = new Address("123 Main Street", (short) 123, "12345");
+    Address companyAddress = new Address("456 Main Street", (short) 456, "45678");
+    double[][] heightWeight = new double[][] { { 1.8, 80 }, { 1.75, 75 }, { 1.5, 50 } };
     Relative[] relatives = new Relative[] {
         new Relative("Mary", 25, "Wife", heightWeight[0]),
         new Relative("Jane", 5, "Daughter", heightWeight[1]),
@@ -35,6 +36,10 @@ public class MainApp {
     for (int i = 0; i < fields.length; i++) {
       fields[i].setAccessible(true);
       if (fields[i].isSynthetic()) {
+        continue;
+      }
+      if ((fields[i].getModifiers() & Modifier.STATIC) != 0
+          || (fields[i].getModifiers() & Modifier.TRANSIENT) != 0) {
         continue;
       }
       sb.append(indent(indentSize + 1));
@@ -67,7 +72,8 @@ public class MainApp {
     return sb.toString();
   }
 
-  private static String formatArrayValues(Object array, int indentSize) throws IllegalArgumentException, IllegalAccessException {
+  private static String formatArrayValues(Object array, int indentSize)
+      throws IllegalArgumentException, IllegalAccessException {
     int arrayLength = Array.getLength(array);
     Class<?> componentType = array.getClass().getComponentType();
     StringBuilder sb = new StringBuilder();
