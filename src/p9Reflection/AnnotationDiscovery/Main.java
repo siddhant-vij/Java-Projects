@@ -12,30 +12,56 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import p9Reflection.AnnotationDiscovery.annotations.InitializerClass;
 import p9Reflection.AnnotationDiscovery.annotations.InitializerMethod;
+import p9Reflection.AnnotationDiscovery.annotations.RetryOperation;
+import p9Reflection.AnnotationDiscovery.annotations.ScanPackages;
 
+@ScanPackages({ "p9Reflection.AnnotationDiscovery.app",
+    "p9Reflection.AnnotationDiscovery.app.configs",
+    "p9Reflection.AnnotationDiscovery.app.databases",
+    "p9Reflection.AnnotationDiscovery.app.http" })
 public class Main {
-  public static void main(String[] args)
-      throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException,
-      InstantiationException, IllegalArgumentException, ClassNotFoundException, URISyntaxException, IOException {
-    initialize("p9Reflection.AnnotationDiscovery.app",
-        "p9Reflection.AnnotationDiscovery.app.configs",
-        "p9Reflection.AnnotationDiscovery.app.databases",
-        "p9Reflection.AnnotationDiscovery.app.http");
+  public static void main(String[] args) throws Throwable {
+    initialize();
   }
 
-  public static void initialize(String... packageNames)
-      throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException,
-      InstantiationException, IllegalArgumentException, ClassNotFoundException, URISyntaxException, IOException {
-    List<Class<?>> classes = getAllClasses(packageNames);
+  public static void initialize() throws Throwable {
+    ScanPackages scanPackages = Main.class.getAnnotation(ScanPackages.class);
+    if (scanPackages == null || scanPackages.value().length == 0) {
+      return;
+    }
+    List<Class<?>> classes = getAllClasses(scanPackages.value());
     for (Class<?> clazz : classes) {
       if (clazz.isAnnotationPresent(InitializerClass.class)) {
         List<Method> initializerMethods = getAllInitializerMethods(clazz);
         Object instance = clazz.getConstructor().newInstance();
         for (Method initializerMethod : initializerMethods) {
-          initializerMethod.invoke(instance);
+          callInitializingMethod(instance, initializerMethod);
+        }
+      }
+    }
+  }
+
+  private static void callInitializingMethod(Object instance, Method initializerMethod) throws Throwable {
+    RetryOperation retryOperation = initializerMethod.getAnnotation(RetryOperation.class);
+    int numberOfRetries = retryOperation == null ? 0 : retryOperation.maxNumberOfRetries();
+    while (true) {
+      try {
+        initializerMethod.invoke(instance);
+        break;
+      } catch (InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (numberOfRetries > 0 && Set.of(retryOperation.retryExceptions()).contains(targetException.getClass())) {
+          numberOfRetries--;
+          System.out.println("Failed to initialize. Retrying...");
+          Thread.sleep(retryOperation.durationBetweenRetries());
+        } else if (retryOperation != null) {
+          throw new Exception(retryOperation.failureMessage(), targetException);
+        } else {
+          throw targetException;
         }
       }
     }
