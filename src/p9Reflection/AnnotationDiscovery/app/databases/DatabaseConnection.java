@@ -2,9 +2,10 @@ package p9Reflection.AnnotationDiscovery.app.databases;
 
 import java.io.IOException;
 
-import p9Reflection.AnnotationDiscovery.annotations.InitializerClass;
-import p9Reflection.AnnotationDiscovery.annotations.InitializerMethod;
-import p9Reflection.AnnotationDiscovery.annotations.RetryOperation;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerClass;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerMethod;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.RetryOperation;
+
 
 @InitializerClass
 public class DatabaseConnection {

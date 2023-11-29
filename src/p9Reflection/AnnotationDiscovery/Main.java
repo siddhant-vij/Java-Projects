@@ -9,15 +9,22 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import p9Reflection.AnnotationDiscovery.annotations.InitializerClass;
-import p9Reflection.AnnotationDiscovery.annotations.InitializerMethod;
-import p9Reflection.AnnotationDiscovery.annotations.RetryOperation;
-import p9Reflection.AnnotationDiscovery.annotations.ScanPackages;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.ExecuteOnSchedule;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerClass;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerMethod;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.RetryOperation;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.ScanPackages;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.ScheduledExecutorClass;
 
 @ScanPackages({ "p9Reflection.AnnotationDiscovery.app",
     "p9Reflection.AnnotationDiscovery.app.configs",
@@ -26,6 +33,61 @@ import p9Reflection.AnnotationDiscovery.annotations.ScanPackages;
 public class Main {
   public static void main(String[] args) throws Throwable {
     initialize();
+    System.out.println("-----------------------------------------");
+    schedule();
+  }
+
+  public static void schedule() throws ClassNotFoundException, URISyntaxException, IOException {
+    ScanPackages scanPackages = Main.class.getAnnotation(ScanPackages.class);
+    if (scanPackages == null || scanPackages.value().length == 0) {
+      return;
+    }
+    List<Class<?>> classes = getAllClasses(scanPackages.value());
+    List<Method> scheduledExecutorMethods = getScheduledExecutorMethods(classes);
+
+    for (Method method : scheduledExecutorMethods) {
+      scheduleMethodExecution(method);
+    }
+  }
+
+  private static void scheduleMethodExecution(Method method) {
+    ExecuteOnSchedule[] schedules = method.getAnnotationsByType(ExecuteOnSchedule.class);
+    ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
+    for (ExecuteOnSchedule schedule : schedules) {
+      es.scheduleAtFixedRate(
+          () -> runWhenScheduled(method),
+          schedule.delaySeconds(),
+          schedule.periodSeconds(),
+          TimeUnit.SECONDS);
+    }
+  }
+
+  private static void runWhenScheduled(Method method) {
+    Date currentDate = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+    System.out.println("Running " + method.getName() + " at " + dateFormat.format(currentDate));
+
+    try {
+      method.invoke(null);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static List<Method> getScheduledExecutorMethods(List<Class<?>> classes) {
+    List<Method> methods = new ArrayList<>();
+    for (Class<?> clazz : classes) {
+      if (!clazz.isAnnotationPresent(ScheduledExecutorClass.class)) {
+        continue;
+      }
+      for (Method method : clazz.getDeclaredMethods()) {
+        if (method.getAnnotationsByType(ExecuteOnSchedule.class).length != 0) {
+          methods.add(method);
+        }
+      }
+    }
+    return methods;
   }
 
   public static void initialize() throws Throwable {

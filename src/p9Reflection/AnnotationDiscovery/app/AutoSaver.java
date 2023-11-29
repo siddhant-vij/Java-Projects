@@ -1,7 +1,7 @@
 package p9Reflection.AnnotationDiscovery.app;
 
-import p9Reflection.AnnotationDiscovery.annotations.InitializerClass;
-import p9Reflection.AnnotationDiscovery.annotations.InitializerMethod;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerClass;
+import p9Reflection.AnnotationDiscovery.annotations.Annotations.InitializerMethod;
 
 @InitializerClass
 public class AutoSaver {
